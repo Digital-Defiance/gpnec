@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 —
+
+- Fix Swift 6 concurrency in RouteSandbox so CI can build gpnec-route demos
+
 ## 0.2.0 — verification gates + fair routing control
 
 - `gpnec verify-lbm` / `verify-route` / `verify` — Metal≡CPU accuracy gates (exit ≠0 on failure)

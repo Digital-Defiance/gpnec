@@ -62,9 +62,7 @@ public final class RouteSandbox {
             let ms = Double(elapsed.components.seconds) * 1000
                 + Double(elapsed.components.attoseconds) / 1e15
 
-            await MainActor.run {
-                self?.finishBootstrap(graph: graph, generateMs: ms, packetCount: packetCount)
-            }
+            await self?.finishBootstrap(graph: graph, generateMs: ms, packetCount: packetCount)
         }
     }
 
