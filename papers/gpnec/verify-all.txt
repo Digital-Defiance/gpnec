@@ -1,0 +1,30 @@
+=== GPNEC verify-all ===
+
+GPNEC verify-lbm — Metal vs CPU accuracy
+device: Apple M4 Max
+lattice: 64×64  steps: 32  τ: 0.56  L2 threshold: 0.0001
+protocol: identical IC/boundaries to bench; compare full 10-channel state after N steps
+
+relative L2 (metal vs cpu): 3.275108e-07
+max |metal−cpu|:            4.768372e-07
+metal mass Σf:  4103.588379 → 4103.583984  (rel Δ 1.071e-06)
+cpu mass Σf:    4103.588379 → 4103.583496  (rel Δ 1.190e-06)
+finite: metal=true cpu=true
+rest equilibrium max |drift| (cpu): 0.000e+00  pass=true
+
+verified: true
+
+GPNEC verify-route — embedding + Metal≡CPU hops + crash scenario
+device: Apple M4 Max
+N=800 K=10 crash=250 hopPackets=1024 hopTicks=8 seed=42
+
+embedding invariants: pass
+distance self-check max|Δ|  euc=0.000e+00  poincaré(sym)=0.000e+00  (thr 1.0e-05)
+Metal≡CPU greedy hops (8 ticks × 1024 pkts): euc mismatches=0 poincaré mismatches=0
+crash SYMMETRIC (identical retry+respawn): true — euc=280 hyp=878 — symmetric (identical retry+respawn): delivered euc=280 hyp=878 (ratio 3.14); inFlight euc=512 hyp=512; dropped euc=0 hyp=0
+crash SANDBOX (euc freeze; UI narrative): true — euc=75 hyp=878 — sandbox (euc freeze): delivered euc=75 hyp=878; inFlight euc=437 hyp=512
+publication gate uses symmetric crash (sandbox is reported only)
+
+verified: true
+
+=== all verified ===

@@ -1,0 +1,376 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{natbib}
+\usepackage{xcolor}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue!50!black
+}
+
+\title{GPNEC: A Metal State Automaton on Apple Silicon\\
+\large Verified Lattice Boltzmann Parity, Dual-Geometry Routing\\
+under Matched Policies, and Honest Performance Framing}
+\author{Digital Defiance}
+\date{August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present \textbf{GPNEC}, an open Apple Silicon engine for hand-crafted
+state automata $X_{t+1}=\Phi(X_t,W,\theta)$ using Metal compute kernels and,
+where topology is a dense linear map, MPSGraph. This report focuses on what
+we can verify with reproducible CLI gates on an Apple~M4~Max.
+
+For D2Q9 Lattice Boltzmann (BGK), a single-thread CPU reference that mirrors
+the Metal collide--stream kernels matches GPU state to relative
+$\mathrm{L}_2\sim3\times10^{-7}$. We report Metal throughput in MLups and
+estimate effective memory traffic, and we explicitly treat the single-thread
+CPU mirror as an \emph{accuracy gold standard}, not as a competitive CFD
+baseline. Headline ``speedup vs one CPU thread'' figures are therefore
+secondary and carefully scoped.
+
+For dual-geometry greedy routing, Metal and CPU hop updates agree with zero
+field mismatches under lockstep comparison. Under a \textbf{symmetric}
+post-crash protocol---identical silent-retry and respawn on both
+metrics---Poincar\'e cumulative deliveries remain higher than Euclidean on
+our dual embedding (about $1.8\times$ in the primary table). We also report
+the Route app's asymmetric ``sandbox'' protocol for completeness, and we
+state plainly that it handicaps Euclidean traffic and must not be used as an
+embedding-only resilience claim.
+
+Source, \texttt{gpnec verify}, and paired \texttt{route-verify --policy both}
+gates are released with the measurements archived under
+\texttt{papers/gpnec/}.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+\label{sec:intro}
+
+GPNEC evaluates local update rules on Apple Silicon without an ML training
+stack: no Core~ML, MLX, or PyTorch in the core loop. Geometry lives in $W$,
+transition physics or routing policy in a Metal kernel $\Phi$, and the host
+API stays stable across adapters.
+
+This revision addresses methodological gaps that would (correctly) draw
+reviewer criticism in a systems or computational-physics venue:
+\begin{enumerate}[leftmargin=*]
+  \item Routing comparisons now lead with a \textbf{symmetric} crash
+        control (identical retry/respawn). The UI ``freeze Euclidean''
+        protocol is demoted to a demo narrative.
+  \item LBM performance is framed primarily as Metal MLups and bandwidth
+        utilization against a kernel-faithful CPU accuracy reference---not
+        as a $2000\times$ claim against a competitive multi-core CFD code.
+  \item We separate MPSGraph topology paths from custom Metal LBM/route
+        kernels, document Poincar\'e float32 clamping, and state LBM Mach /
+        boundary assumptions for the verified bench path.
+\end{enumerate}
+
+\section{System architecture}
+\label{sec:system}
+
+\subsection{Automaton API}
+\begin{equation}
+  X_{t+1} = \Phi(X_t, W, \theta).
+\end{equation}
+State lives in double-buffered \texttt{MTLBuffer}s on unified memory.
+
+\subsection{Where MPSGraph ends and Metal begins}
+The marketing phrase ``Metal/MPSGraph automaton'' covers two execution
+paths that must not be conflated:
+
+\begin{center}
+\begin{tabular}{@{}llp{0.48\textwidth}@{}}
+\toprule
+Path & Mechanism & Used by \\
+\midrule
+Topology matmul & \texttt{MPSGraph} batched $Y\!=\!WX$ then custom $\Phi$
+  & Subspace / hyperbolic CLI adapters; optional dense LBM cost-model check \\
+Collide+stream & Two custom Metal kernels (\texttt{lbm\_bgk\_collide},
+  \texttt{lbm\_stream\_bounce} in \texttt{PhiLBM.metal}); MPSGraph is
+  \emph{not} in the hot loop
+  & Production LBM bench, \texttt{verify-lbm}, Fluid app \\
+Dual greedy route & Custom Metal kernel \texttt{dual\_greedy\_route\_step}
+  & Route app, \texttt{verify-route}, \texttt{route-verify} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In short: MPSGraph manages dense linear topology where that is the natural
+$W$; the headline LBM and dual-router results in this paper are custom Metal
+kernels.
+
+\section{Lattice Boltzmann}
+\label{sec:lbm}
+
+\subsection{Model, Mach number, and boundaries}
+We use D2Q9 BGK~\cite{succi2001,kruger2017} with lattice sound speed
+$c_s=1/\sqrt{3}$. Default demo inlet $u_x=0.08$ gives
+\begin{equation}
+  \mathrm{Ma} \approx \frac{u_x}{c_s} \approx 0.14,
+\end{equation}
+comfortably in the low-Mach regime where BGK is commonly applied. Relaxation
+time $\tau=0.56$ (clamped $\ge0.51$ in kernels).
+
+The stream kernel applies: periodic boundaries in $y$; approximate bounce on
+open $x$ faces; mid-grid bounce-back from solid masks; and a left-column
+velocity inlet that overwrites populations with equilibrium at
+$(\rho,u)=(1,(u_x,0))$. Dye (channel~9) is advected upwind. The
+\textbf{accuracy/bench path} used in tables below disables solids and uses
+matched inlet settings so Metal and CPU see identical IC/BC; the Fluid UI
+adds cylinder solids for visualization without changing the verify
+contract.
+
+\subsection{CPU reference (accuracy gold, not a CFD champion)}
+\texttt{cpu-d2q9} is a single-thread Swift implementation that mirrors
+\texttt{PhiLBM.metal} channel layout and arithmetic. Its job is
+\textbf{algorithmic parity} for relative $\mathrm{L}_2$ tests. It is
+intentionally not NEON-tuned multipole CFD. Optional \texttt{cpu-mt}
+parallelizes over rows; on this dense stencil it is typically
+\emph{slower} than single-thread (memory/contention), so we report it only
+to discourage using a weak multi-thread straw man as a ``fixed'' baseline.
+
+We therefore \textbf{do not} treat ``Metal / single-thread CPU'' ratios as
+the primary systems claim. Primary claims are: (i)~Metal$\equiv$CPU state
+parity, and (ii)~achieved Metal MLups with an order-of-magnitude bandwidth
+estimate.
+
+\subsection{Accuracy protocol}
+\texttt{gpnec verify-lbm} compares full 10-channel state after $N$ steps.
+Gate: relative $\mathrm{L}_2\le10^{-4}$ (observed $\sim10^{-7}$), finite
+values, and rest-equilibrium drift on CPU.
+
+\subsection{Throughput and bandwidth estimate}
+Let $N_c=W\cdot H$ cells and $C=10$ float32 channels (D2Q9+dye). One
+collide+stream step performs two full read/write passes over the state in
+our ping-pong implementation, i.e.\ about
+\begin{equation}
+  T \approx 4\cdot N_c\cdot C\cdot 4\ \mathrm{bytes}
+  = 16\,N_c\,C\ \mathrm{bytes}
+\end{equation}
+of explicit buffer traffic (ignoring solids texture and incidental reads).
+For $256^2$ this is $\approx10.5$~MiB/step. At $69.9\,\mu\mathrm{s}$/step
+(Table~\ref{tab:lbm-thru}),
+\begin{equation}
+  B_{\mathrm{eff}} \approx \frac{10.5\times2^{20}}{69.9\times10^{-6}}
+  \approx 150\ \mathrm{GB/s}.
+\end{equation}
+Published M4~Max unified memory bandwidth is on the order of
+$500{+}\,\mathrm{GB/s}$; $\sim150\,\mathrm{GB/s}$ is therefore only a
+modest fraction of peak. At these lattice sizes the working set
+($\sim2.5$~MiB) fits in caches, so the step time is plausibly limited by
+\textbf{kernel launch / command-buffer overhead and latency} rather than
+sustained DRAM bandwidth. Larger lattices, fused collide--stream, or
+persistent command buffers would be needed before claiming a bandwidth
+roofline result. We report this estimate so readers do not over-interpret
+absolute MLups.
+
+\section{Dual-geometry routing}
+\label{sec:route}
+
+\subsection{Dual embedding}
+Sample Poincar\'e-disk points; build symmetrized $K$-NN edges in Poincar\'e
+distance; embed the \emph{same} undirected graph in the plane via landmark
+MDS; select a crash set of size $C$ along a vertical mid-strip of the
+Euclidean layout (Route app backbone cut), informed by sampled betweenness.
+
+\subsection{Greedy hop and float32 Poincar\'e clamping}
+One Metal thread per packet forwards to the live neighbor minimizing
+distance to the destination. Poincar\'e distance matches the CPU reference:
+\begin{align}
+  &\text{if }\lVert a\rVert\ge0.999,\quad a\leftarrow a\cdot0.999/\lVert a\rVert
+    \quad\text{(likewise for $b$)},\\
+  &d=\log\!\bigl(\alpha+\sqrt{\max(\alpha^2-1,0)}\bigr),\quad
+    \alpha=1+\frac{2\lVert a-b\rVert^2}{\max(1-\lVert a\rVert^2,10^{-6})\,
+    \max(1-\lVert b\rVert^2,10^{-6})}.
+\end{align}
+Clamping keeps points strictly inside the open disk so float32
+denominators and $\mathrm{acosh}$-equivalent logs remain finite near the
+boundary. This is a reproducibility detail, not a claim of exact hyperbolic
+isometry under all float32 roundings.
+
+\subsection{Metal$\equiv$CPU lockstep}
+With \texttt{stuckRetryHops}=0, Metal and CPU steppers are compared field-wise
+each tick. Zero mismatches is the correctness gate for the hop kernel.
+
+\subsection{Crash protocols: symmetric (primary) vs sandbox (narrative)}
+\label{sec:crash-protocols}
+
+\paragraph{Symmetric (publication control).}
+After the crash, \emph{both} metrics keep \texttt{stuckRetryHops}=40 and
+respawn finished slots. Any delivery gap is attributable to geometry and
+greedy progress on the damaged graph under matched mechanics.
+
+\paragraph{Sandbox (UI narrative only).}
+Matches the Route app: Euclidean sets \texttt{stuckRetryHops}=0 and stops
+respawning; Poincar\'e keeps retry+respawn. This \textbf{handicaps}
+Euclidean traffic by construction. It is useful for a visual demo and is
+reported for fidelity to the shipped UI, but it is \textbf{not} evidence
+that the embedding alone explains large delivery multiples.
+
+\texttt{gpnec verify-route} requires the symmetric gate for
+\texttt{verified: true}; sandbox results are printed alongside.
+\texttt{route-verify --policy both} prints both reports.
+
+\section{Experimental setup}
+\label{sec:setup}
+
+Host: Apple~M4~Max, macOS, Swift~6 / Metal. Transcripts:
+\texttt{papers/gpnec/verify-all.txt}, \texttt{bench.txt},
+\texttt{route-verify-paired.txt}.
+
+Primary route table: $N=800$, $K=10$, $C=250$, $512$ packets, $80$/$120$
+pre/post ticks, seed~$42$, $64$ betweenness samples.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{LBM accuracy}
+
+\begin{table}[ht]
+\centering
+\caption{Metal vs CPU D2Q9 ($64\times64$, $32$ steps, $\tau=0.56$). Gate:
+relative $\mathrm{L}_2\le10^{-4}$.}
+\label{tab:lbm-acc}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Rel.\ $\mathrm{L}_2$ & Max $|\!\Delta\!|$ & Mass rel.\ $\Delta$ & Rest drift & Gate \\
+\midrule
+$3.28\times10^{-7}$ & $4.77\times10^{-7}$ & $\sim10^{-6}$ & $0$ & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{LBM throughput (scoped)}
+
+\begin{table}[ht]
+\centering
+\caption{LBM step time and MLups on M4~Max (warmup~64, timed~50).
+CPU columns are the kernel-faithful accuracy reference and a row-parallel
+variant---not tuned CFD baselines. Metal/CPU ratios are informational only.}
+\label{tab:lbm-thru}
+\begin{tabular}{@{}rrrrrrr@{}}
+\toprule
+Size & Metal $\mu$s & Metal MLups & CPU $\mu$s & CPU-mt $\mu$s & vs CPU & $B_{\mathrm{eff}}$ est. \\
+\midrule
+$32^2$  & 23.4 & 43.8  & 2357  & 11280  & $101\times$ & --- \\
+$64^2$  & 24.4 & 167.8 & 9633  & 47752  & $395\times$ & --- \\
+$128^2$ & 34.6 & 472.9 & 38013 & 195377 & $1097\times$ & --- \\
+$256^2$ & 69.9 & 937.3 & 155834& 790508 & $2229\times$ & $\sim150$~GB/s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{cpu-mt} is slower than single-thread here; we include it to show that
+naive multi-threading does not automatically produce a stronger baseline.
+
+\subsection{Routing: lockstep and paired crash policies}
+
+\begin{table}[ht]
+\centering
+\caption{\texttt{gpnec verify-route} checks (M4~Max, $N=800$, seed~$42$).}
+\label{tab:route-verify}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Check & Outcome \\
+\midrule
+Embedding invariants & pass \\
+Metal$\equiv$CPU hops ($8\times1024$) & $0$ / $0$ mismatches \\
+Symmetric crash gate (publication) & pass \\
+Sandbox crash (UI narrative; reported) & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Paired crash comparison under identical seeds
+($N=800$, $K=10$, $C=250$, $512$ packets, seed~$42$).
+Symmetric $=$ matched retry+respawn. Sandbox $=$ Euclidean freeze (handicapped).}
+\label{tab:route-paired}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Policy & Metric & Post delivered & In-flight & Hyp/Euc \\
+\midrule
+Symmetric & Euclidean & 544 & 512 & 1.78 \\
+Symmetric & Poincar\'e & 966 & 512 & 1.78 \\
+Sandbox   & Euclidean & 125 & 387 & 7.65 \\
+Sandbox   & Poincar\'e & 956 & 512 & 7.65 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Under \textbf{symmetric} mechanics, Poincar\'e still out-delivers Euclidean
+by about $1.8\times$ on this embedding and crash set---a meaningful but
+far more modest gap than the sandbox's $7.7\times$, which largely reflects
+disabling Euclidean retry/respawn. Pre-crash, both metrics deliver
+substantial traffic (Euclidean~$888$, Poincar\'e~$3092$ cumulative under
+respawn), so the post-crash comparison is not an artifact of a dead
+pre-crash Euclidean mesh.
+
+\section{Limitations and non-claims}
+\label{sec:limits}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Routing generality.} Results are for one dual-embedding
+        generator, one crash geometry, and listed seeds. We do not claim
+        hyperbolic greedy routing dominates Euclidean greedy routing on
+        arbitrary graphs.
+  \item \textbf{Sandbox $\neq$ science claim.} Large sandbox multiples are
+        expected under handicapped Euclidean policy; use symmetric numbers
+        for embedding comparisons.
+  \item \textbf{CPU performance.} Single-thread (and naive mt) CPU figures
+        establish parity and rough scale; they are not a substitute for
+        NEON/Accelerate or CUDA baselines on appropriate hardware.
+  \item \textbf{Roofline.} The $\sim150$~GB/s estimate at $256^2$ is a
+        back-of-envelope traffic model, not a full roofline with measured
+        counters. Small lattices are likely launch/latency limited.
+  \item \textbf{Cross-vendor.} No CUDA/OpenFOAM same-device study on this
+        host.
+  \item \textbf{Float32 hyperbolic math.} Clamping avoids NaNs near the
+        disk boundary; it does not eliminate all geometric distortion from
+        single-precision evaluation.
+\end{itemize}
+
+\section{Reproducibility}
+\label{sec:repro}
+
+\begin{verbatim}
+swift test
+swift run gpnec verify
+swift run gpnec route-verify --n 800 --k 10 --crash 250 \
+  --packets 512 --pre 80 --post 120 --seed 42 \
+  --betweenness-samples 64 --policy both
+swift run gpnec bench --backends metal,cpu,cpu-mt \
+  --sizes 32,64,128,256 --steps 50 --warmup 64
+\end{verbatim}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+GPNEC's durable contributions are reproducible Metal$\equiv$CPU gates for
+LBM and greedy routing, a fair symmetric crash control under which
+Poincar\'e still leads on our dual embedding, and performance reporting that
+separates accuracy references from competitive baselines. The asymmetric
+sandbox remains a UI demonstration, not a substitute for matched-policy
+evidence.
+
+\section*{Availability}
+\url{https://github.com/Digital-Defiance/gpnec}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

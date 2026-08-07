@@ -1,0 +1,45 @@
+  running metal-collide-stream @ 32x32 …
+  running cpu-d2q9 @ 32x32 …
+  running cpu-d2q9-mt @ 32x32 …
+  running metal-collide-stream @ 64x64 …
+  running cpu-d2q9 @ 64x64 …
+  running cpu-d2q9-mt @ 64x64 …
+  running metal-collide-stream @ 128x128 …
+  running cpu-d2q9 @ 128x128 …
+  running cpu-d2q9-mt @ 128x128 …
+  running metal-collide-stream @ 256x256 …
+  running cpu-d2q9 @ 256x256 …
+  running cpu-d2q9-mt @ 256x256 …
+GPNEC bench — apples-to-apples LBM throughput
+device: Apple M4 Max
+warmup: 64  timed steps: 50
+protocol: same lattice/tau/IC; time only advance() after warmup; MLups = WH·steps / s / 1e6
+baseline: cpu-d2q9 = single-thread Swift matching PhiLBM.metal (external to Metal)
+note: dense ≠ identical physics (averaged W); optional O(N^2) cost-model check
+
+
+backend                 size    us/step     MLups       W_MiB     state_MiB   
+------------------------------------------------------------------------------
+metal-collide-stream    32^2    23.36       43.83       0.00      0.04        
+cpu-d2q9                32^2    2357.22     0.43        0.00      0.04        
+cpu-d2q9-mt             32^2    11279.87    0.09        0.00      0.04        
+metal-collide-stream    64^2    24.41       167.78      0.00      0.16        
+cpu-d2q9                64^2    9633.00     0.43        0.00      0.16        
+cpu-d2q9-mt             64^2    47751.93    0.09        0.00      0.16        
+metal-collide-stream    128^2   34.64       472.93      0.00      0.62        
+cpu-d2q9                128^2   38012.87    0.43        0.00      0.62        
+cpu-d2q9-mt             128^2   195376.90   0.08        0.00      0.62        
+metal-collide-stream    256^2   69.92       937.31      0.00      2.50        
+cpu-d2q9                256^2   155833.88   0.42        0.00      2.50        
+cpu-d2q9-mt             256^2   790507.72   0.08        0.00      2.50        
+
+Speedup vs external CPU baselines (us/step ratios → metal):
+  32^2 cpu/metal = 100.9x  (metal 23.36 · cpu 2357.22 us/step · 43.8 / 0.43 MLups)
+  32^2 cpu-mt/metal = 482.8x  (metal 23.36 · cpu-mt 11279.87 us/step · 43.8 / 0.09 MLups)
+  64^2 cpu/metal = 394.6x  (metal 24.41 · cpu 9633.00 us/step · 167.8 / 0.43 MLups)
+  64^2 cpu-mt/metal = 1956.0x  (metal 24.41 · cpu-mt 47751.93 us/step · 167.8 / 0.09 MLups)
+  128^2 cpu/metal = 1097.3x  (metal 34.64 · cpu 38012.87 us/step · 472.9 / 0.43 MLups)
+  128^2 cpu-mt/metal = 5639.7x  (metal 34.64 · cpu-mt 195376.90 us/step · 472.9 / 0.08 MLups)
+  256^2 cpu/metal = 2228.8x  (metal 69.92 · cpu 155833.88 us/step · 937.3 / 0.42 MLups)
+  256^2 cpu-mt/metal = 11306.0x  (metal 69.92 · cpu-mt 790507.72 us/step · 937.3 / 0.08 MLups)
+

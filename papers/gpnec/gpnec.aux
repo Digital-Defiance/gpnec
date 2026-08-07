@@ -1,0 +1,52 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{succi2001,kruger2017}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{3}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{3}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}System architecture}{3}{section.2}\protected@file@percent }
+\newlabel{sec:system}{{2}{3}{System architecture}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Automaton API}{3}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Where MPSGraph ends and Metal begins}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Lattice Boltzmann}{3}{section.3}\protected@file@percent }
+\newlabel{sec:lbm}{{3}{3}{Lattice Boltzmann}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Model, Mach number, and boundaries}{3}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}CPU reference (accuracy gold, not a CFD champion)}{4}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Accuracy protocol}{4}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Throughput and bandwidth estimate}{4}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Dual-geometry routing}{4}{section.4}\protected@file@percent }
+\newlabel{sec:route}{{4}{4}{Dual-geometry routing}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Dual embedding}{4}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Greedy hop and float32 Poincar\'e clamping}{5}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Metal$\equiv $CPU lockstep}{5}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Crash protocols: symmetric (primary) vs sandbox (narrative)}{5}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:crash-protocols}{{4.4}{5}{Crash protocols: symmetric (primary) vs sandbox (narrative)}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Symmetric (publication control).}{5}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Sandbox (UI narrative only).}{5}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experimental setup}{5}{section.5}\protected@file@percent }
+\newlabel{sec:setup}{{5}{5}{Experimental setup}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{5}{section.6}\protected@file@percent }
+\newlabel{sec:results}{{6}{5}{Results}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}LBM accuracy}{5}{subsection.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Metal vs CPU D2Q9 ($64\times 64$, $32$ steps, $\tau =0.56$). Gate: relative $\mathrm  {L}_2\le 10^{-4}$.}}{5}{table.1}\protected@file@percent }
+\newlabel{tab:lbm-acc}{{1}{5}{Metal vs CPU D2Q9 ($64\times 64$, $32$ steps, $\tau =0.56$). Gate: relative $\mathrm {L}_2\le 10^{-4}$}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}LBM throughput (scoped)}{5}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces LBM step time and MLups on M4~Max (warmup~64, timed~50). CPU columns are the kernel-faithful accuracy reference and a row-parallel variant---not tuned CFD baselines. Metal/CPU ratios are informational only.}}{6}{table.2}\protected@file@percent }
+\newlabel{tab:lbm-thru}{{2}{6}{LBM step time and MLups on M4~Max (warmup~64, timed~50). CPU columns are the kernel-faithful accuracy reference and a row-parallel variant---not tuned CFD baselines. Metal/CPU ratios are informational only}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Routing: lockstep and paired crash policies}{6}{subsection.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \texttt  {gpnec verify-route} checks (M4~Max, $N=800$, seed~$42$).}}{6}{table.3}\protected@file@percent }
+\newlabel{tab:route-verify}{{3}{6}{\texttt {gpnec verify-route} checks (M4~Max, $N=800$, seed~$42$)}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Paired crash comparison under identical seeds ($N=800$, $K=10$, $C=250$, $512$ packets, seed~$42$). Symmetric $=$ matched retry+respawn. Sandbox $=$ Euclidean freeze (handicapped).}}{6}{table.4}\protected@file@percent }
+\newlabel{tab:route-paired}{{4}{6}{Paired crash comparison under identical seeds ($N=800$, $K=10$, $C=250$, $512$ packets, seed~$42$). Symmetric $=$ matched retry+respawn. Sandbox $=$ Euclidean freeze (handicapped)}{table.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Limitations and non-claims}{6}{section.7}\protected@file@percent }
+\newlabel{sec:limits}{{7}{6}{Limitations and non-claims}{section.7}{}}
+\bibstyle{plainnat}
+\bibdata{refs}
+\bibcite{kruger2017}{{1}{2017}{{Kr{\"u}ger et~al.}}{{Kr{\"u}ger, Kusumaatmaja, Kuzmin, Shardt, Silva, and Viggen}}}
+\bibcite{succi2001}{{2}{2001}{{Succi}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Reproducibility}{7}{section.8}\protected@file@percent }
+\newlabel{sec:repro}{{8}{7}{Reproducibility}{section.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{7}{section.9}\protected@file@percent }
+\newlabel{sec:conclusion}{{9}{7}{Conclusion}{section.9}{}}
+\gdef \@abspage@last{7}

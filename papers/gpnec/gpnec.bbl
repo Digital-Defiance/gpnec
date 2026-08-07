@@ -1,0 +1,20 @@
+\begin{thebibliography}{2}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Kr{\"u}ger et~al.(2017)Kr{\"u}ger, Kusumaatmaja, Kuzmin, Shardt,
+  Silva, and Viggen]{kruger2017}
+Timm Kr{\"u}ger, Halim Kusumaatmaja, Alexandr Kuzmin, Orest Shardt, Goncalo
+  Silva, and Erlend~Magnus Viggen.
+\newblock \emph{The Lattice Boltzmann Method: Principles and Practice}.
+\newblock Springer, 2017.
+
+\bibitem[Succi(2001)]{succi2001}
+Sauro Succi.
+\newblock \emph{The Lattice Boltzmann Equation for Fluid Dynamics and Beyond}.
+\newblock Oxford University Press, 2001.
+
+\end{thebibliography}

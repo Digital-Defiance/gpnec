@@ -1,0 +1,10 @@
+[package]
+name = "gpnec-host"
+version = "0.1.0"
+edition = "2021"
+description = "Rust host for the General Purpose Non-Euclidean Computer"
+license = "MIT"
+
+[[bin]]
+name = "gpnec-host"
+path = "src/main.rs"

@@ -1,0 +1,16 @@
+GPNEC route-verify — Euclidean vs Poincaré greedy
+N=800 K=10 crashTopC=250 packets=512 pre=80 post=120 maxHops=0
+crash=Euclidean MDS cut; dead-node hard drop; stuck=in-flight
+  generating dual embedding (Poincaré K-NN + betweenness)…
+  embedding + dual Metal routes done
+device: Apple M4 Max
+generate: 379.6 ms
+crashTargets[250]: 766,412,694,419,339,795,492,710,…
+pre-crash:
+  euclidean          delivered=888 dropped=0 inFlight=512 ratio=1.000 meanHops=9.69 ticks=80
+  poincare           delivered=3092 dropped=0 inFlight=512 ratio=1.000 meanHops=10.23 ticks=80
+post-crash (fresh SD traffic on damaged mesh):
+  euclidean          delivered=125 dropped=0 inFlight=387 ratio=1.000 meanHops=6.67 ticks=120
+  poincare           delivered=956 dropped=0 inFlight=512 ratio=1.000 meanHops=6.64 ticks=120
+note: post-crash delivered euc=125 hyp=956; inFlight euc=387 hyp=512; dropped euc=0 hyp=0
+verified: true

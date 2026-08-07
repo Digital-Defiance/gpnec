@@ -1,0 +1,24 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}System architecture}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Automaton API}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Where MPSGraph ends and Metal begins}{3}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Lattice Boltzmann}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Model, Mach number, and boundaries}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}CPU reference (accuracy gold, not a CFD champion)}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Accuracy protocol}{4}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Throughput and bandwidth estimate}{4}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Dual-geometry routing}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Dual embedding}{4}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Greedy hop and float32 Poincar\'e clamping}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Metal$\equiv $CPU lockstep}{5}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Crash protocols: symmetric (primary) vs sandbox (narrative)}{5}{subsection.4.4}%
+\contentsline {paragraph}{Symmetric (publication control).}{5}{section*.2}%
+\contentsline {paragraph}{Sandbox (UI narrative only).}{5}{section*.3}%
+\contentsline {section}{\numberline {5}Experimental setup}{5}{section.5}%
+\contentsline {section}{\numberline {6}Results}{5}{section.6}%
+\contentsline {subsection}{\numberline {6.1}LBM accuracy}{5}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}LBM throughput (scoped)}{5}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Routing: lockstep and paired crash policies}{6}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Limitations and non-claims}{6}{section.7}%
+\contentsline {section}{\numberline {8}Reproducibility}{7}{section.8}%
+\contentsline {section}{\numberline {9}Conclusion}{7}{section.9}%

@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  macos-artifacts:
+    name: Bridge + demos
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Version from tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "$TAG" > VERSION
+          echo "VER=$TAG" >> "$GITHUB_ENV"
+
+      - name: Build bridge tarball
+        run: |
+          chmod +x scripts/release_bridge.sh scripts/package_demo_apps.sh
+          ./scripts/release_bridge.sh "$VER"
+
+      - name: Build demo apps zip
+        run: ./scripts/package_demo_apps.sh "$VER"
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          BRIDGE="dist/gpnec-${VER}-macos-universal.tar.gz"
+          DEMOS="dist/gpnec-demos-${VER}-macos-universal.zip"
+          NOTES="GPNEC ${VER} — Metal/MPSGraph bridge + fluid/route demos."
+          if [[ -f CHANGELOG.md ]]; then
+            NOTES="$(awk '/^## /{if(found)exit; found=1} found' CHANGELOG.md)"
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$BRIDGE" "$DEMOS" dist/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" "$BRIDGE" "$DEMOS" dist/SHA256SUMS \
+              --title "GPNEC ${VER}" \
+              --notes "$NOTES" \
+              --verify-tag
+          fi

@@ -1,0 +1,16 @@
+Building for debugging...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+Build of product 'gpnec' complete! (0.08s)
+GPNEC verify-lbm — Metal vs CPU accuracy
+device: Apple M4 Max
+lattice: 64×64  steps: 32  τ: 0.56  L2 threshold: 0.0001
+protocol: identical IC/boundaries to bench; compare full 10-channel state after N steps
+
+relative L2 (metal vs cpu): 3.275108e-07
+max |metal−cpu|:            4.768372e-07
+metal mass Σf:  4103.588379 → 4103.583984  (rel Δ 1.071e-06)
+cpu mass Σf:    4103.588379 → 4103.583496  (rel Δ 1.190e-06)
+finite: metal=true cpu=true
+rest equilibrium max |drift| (cpu): 0.000e+00  pass=true
+
+verified: true
