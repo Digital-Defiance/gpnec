@@ -1,0 +1,9 @@
+---
+description: Core constraints for the GPNEC Engine, zero-copy rendering, and GUI adapters.
+globs: *.swift, *.metal, *.rs, *.tsx
+---
+# General Purpose Non-Euclidean Computer (GPNEC) Rules
+- ARCHITECTURE: The compute backend strictly uses `MPSGraph` and custom Metal (`.metal`) kernels. 
+- PROHIBITION: Do not import or suggest CoreML, PyTorch, MLX, or any standard ML framework.
+- MEMORY: Enforce Zero-Copy Rendering. Compute tensors backed by `MTLBuffer` must be passed directly by pointer to the graphics pipeline (e.g., `MTKView`) without CPU serialization.
+- BRIDGING: `GPNECCBridge` handles all Swift/Rust FFI.

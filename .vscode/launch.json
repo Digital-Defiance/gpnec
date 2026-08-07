@@ -1,0 +1,64 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:gpnec}",
+            "name": "Debug gpnec",
+            "target": "gpnec",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug gpnec"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:gpnec}",
+            "name": "Release gpnec",
+            "target": "gpnec",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release gpnec"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:gpnec}",
+            "name": "Debug gpnec-fluid",
+            "target": "gpnec-fluid",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug gpnec-fluid"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:gpnec}",
+            "name": "Release gpnec-fluid",
+            "target": "gpnec-fluid",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release gpnec-fluid"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:gpnec}",
+            "name": "Debug gpnec-route",
+            "target": "gpnec-route",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug gpnec-route"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:gpnec}",
+            "name": "Release gpnec-route",
+            "target": "gpnec-route",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release gpnec-route"
+        }
+    ]
+}

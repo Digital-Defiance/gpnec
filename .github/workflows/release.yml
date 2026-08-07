@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  macos-bridge:
+    name: Universal bridge tarball
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Build release tarball
+        run: |
+          chmod +x scripts/release_bridge.sh
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "$TAG" > VERSION
+          ./scripts/release_bridge.sh "$TAG"
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VER="${TAG#v}"
+          ASSET="dist/gpnec-${VER}-macos-universal.tar.gz"
+          NOTES="GPNEC ${VER} — Metal/MPSGraph bridge + demos."
+          if [[ -f CHANGELOG.md ]]; then
+            NOTES="$(awk '/^## /{if(found)exit; found=1} found' CHANGELOG.md)"
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" dist/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" "$ASSET" dist/SHA256SUMS \
+              --title "GPNEC ${VER}" \
+              --notes "$NOTES" \
+              --verify-tag
+          fi
