@@ -264,6 +264,25 @@ gh release create v0.1.0 \
 
 ---
 
+## Signing & notarization (demos cask)
+
+Gatekeeper requires **Developer ID** + **notarization** for apps downloaded via Homebrew.
+
+```bash
+export APPLE_SIGNING_IDENTITY="Developer ID Application: Digital Defiance (J6887N729S)"
+# App Store Connect API key (preferred):
+export APPLE_API_KEY=…
+export APPLE_API_ISSUER=…
+export APPLE_API_KEY_PATH=~/private_keys/AuthKey_….p8
+
+./scripts/package_demo_apps.sh 0.1.0
+# → dist/gpnec-demos-….zip  (signed, notarized, stapled)
+```
+
+Same credentials as Lattice / Warp. CI release workflow should inject these as secrets for tagged builds.
+
+---
+
 ## Subspace Lattice integration (directive 3)
 
 The board game lives in a **sibling repo** (Nx + Tauri), typically checked out next to this tree as `IWGF/subspace-lattice`. Rules and Sensor Net authority stay in `@subspace-lattice/core`. GPNEC only **diffuses** the control field for the WebGL heat map under the pieces.
