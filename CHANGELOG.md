@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.1 —
+## 0.2.1 — demo build fix
 
 - Fix Swift 6 concurrency in RouteSandbox so CI can build gpnec-route demos
 
