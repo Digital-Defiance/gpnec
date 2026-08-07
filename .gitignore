@@ -9,3 +9,14 @@ DerivedData/
 /host/target
 /dist
 *.dylib
+
+# LaTeX build junk (keep sources + PDF)
+papers/**/*.aux
+papers/**/*.bbl
+papers/**/*.blg
+papers/**/*.fdb_latexmk
+papers/**/*.fls
+papers/**/*.log
+papers/**/*.out
+papers/**/*.toc
+papers/**/*.synctex.gz

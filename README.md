@@ -277,17 +277,17 @@ open -a "GPNEC Route"
 ```bash
 # 1. Bump VERSION + CHANGELOG.md
 # 2. Commit, push main, tag:
-git tag v0.1.0 && git push origin v0.1.0
-# CI builds dist/gpnec-0.1.0-macos-universal.tar.gz and creates the GitHub Release.
+git tag v0.2.0 && git push origin v0.2.0
+# CI builds dist/gpnec-0.2.0-macos-universal.tar.gz and creates the GitHub Release.
 
 # Or locally:
-./scripts/release_bridge.sh 0.1.0
-./scripts/package_demo_apps.sh 0.1.0
-gh release create v0.1.0 \
-  dist/gpnec-0.1.0-macos-universal.tar.gz \
-  dist/gpnec-demos-0.1.0-macos-universal.zip \
+./scripts/release_bridge.sh 0.2.0
+./scripts/package_demo_apps.sh 0.2.0
+gh release create v0.2.0 \
+  dist/gpnec-0.2.0-macos-universal.tar.gz \
+  dist/gpnec-demos-0.2.0-macos-universal.zip \
   dist/SHA256SUMS \
-  --repo Digital-Defiance/gpnec --title "GPNEC 0.1.0" --notes-file CHANGELOG.md
+  --repo Digital-Defiance/gpnec --title "GPNEC 0.2.0" --notes-file CHANGELOG.md
 # Then bump sha256 in digital-defiance/homebrew-tap Formula/gpnec.rb + Casks/gpnec-demos.rb
 ```
 
@@ -304,7 +304,7 @@ export APPLE_API_KEY=…
 export APPLE_API_ISSUER=…
 export APPLE_API_KEY_PATH=~/private_keys/AuthKey_….p8
 
-./scripts/package_demo_apps.sh 0.1.0
+./scripts/package_demo_apps.sh 0.2.0
 # → dist/gpnec-demos-….zip  (signed, notarized, stapled)
 ```
 
