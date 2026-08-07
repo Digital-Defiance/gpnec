@@ -7,4 +7,4 @@
 - Dual Euclidean / Poincaré routing sandbox + `route-verify`
 - Zero-copy fluid and route `MTKView` demos
 - C ABI bridge (`libGPNECCBridge.dylib`) for Subspace Lattice / Rust hosts
-- Homebrew formula target: `lib` + `include/gpnec.h`
+- Homebrew: `brew install gpnec` (bridge) · `brew install --cask gpnec-demos` (Fluid + Route apps)

@@ -226,11 +226,20 @@ Zero-copy viz: node / packet **point instancing** reads the same `MTLBuffer`s th
 
 ```bash
 brew tap digital-defiance/tap
+
+# Bridge for Subspace Lattice Sensor Net (dylib only)
 brew install gpnec
-# relaunch Subspace Lattice (Developer ID / cask) for Metal Sensor Net
+
+# Fluid + Route demo apps (not Subspace Lattice — that's the game)
+brew install --cask gpnec-demos
+open -a "GPNEC Fluid"
+open -a "GPNEC Route"
 ```
 
-Formula installs `libGPNECCBridge.dylib` + `gpnec.h`. Version tracks GitHub Releases (`v*`).
+| Package | What you get |
+|---------|----------------|
+| `gpnec` (formula) | `libGPNECCBridge.dylib` + `gpnec.h` |
+| `gpnec-demos` (cask) | **GPNEC Fluid.app** + **GPNEC Route.app** |
 
 ---
 
@@ -244,9 +253,13 @@ git tag v0.1.0 && git push origin v0.1.0
 
 # Or locally:
 ./scripts/release_bridge.sh 0.1.0
-gh release create v0.1.0 dist/gpnec-0.1.0-macos-universal.tar.gz dist/SHA256SUMS \
+./scripts/package_demo_apps.sh 0.1.0
+gh release create v0.1.0 \
+  dist/gpnec-0.1.0-macos-universal.tar.gz \
+  dist/gpnec-demos-0.1.0-macos-universal.zip \
+  dist/SHA256SUMS \
   --repo Digital-Defiance/gpnec --title "GPNEC 0.1.0" --notes-file CHANGELOG.md
-# Then bump sha256 in digital-defiance/homebrew-tap Formula/gpnec.rb
+# Then bump sha256 in digital-defiance/homebrew-tap Formula/gpnec.rb + Casks/gpnec-demos.rb
 ```
 
 ---
